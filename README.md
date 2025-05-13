@@ -6,6 +6,7 @@ InkFrame is built for cinephiles who appreciate both form and function. It intel
 Future-ready: InkFrame will evolve into a hybrid platform supporting online streaming and movie discovery, alongside local playback.
 
 ****✨ Key Features****
+
 **🎞️ 1. Smart Subtitle Engine**
 • Auto-detects movie filenames and fetches subtitles using intelligent heuristics
 
