@@ -11,58 +11,61 @@ Future-ready: InkFrame will evolve into a hybrid platform supporting online stre
 ****✨ Key Features****
 
 **🎞️ 1. Smart Subtitle Engine**
-• Auto-detects movie filenames and fetches subtitles using intelligent heuristics
-
-• Supports .srt subtitle auto-download & caching
-
-• Multiple subtitle tracks with quick switching
-
-• Fully customizable:
-
-• Font size, color, and style
-
-• Background opacity and color
-
-• Sync offset adjustment
+  • Auto-detects movie filenames and fetches subtitles using intelligent heuristics
+  
+  • Supports .srt subtitle auto-download & caching
+  
+  • Multiple subtitle tracks with quick switching
+  
+  • Fully customizable:
+  
+  • Font size, color, and style
+  
+  • Background opacity and color
+  
+  • Sync offset adjustment
 
 **📽️ 2. Movie Mode (Metadata & Enrichment)**
 _Automatically fetches:_
-
-• IMDb rating
-
-• Posters & banners
-
-• Plot summaries
-
-• Cast & crew info
-
-• Rich, contextual movie detail screen before playback
+  
+  • IMDb rating
+  
+  • Posters & banners
+  
+  • Plot summaries
+  
+  • Cast & crew info
+  
+  • Rich, contextual movie detail screen before playback
 
 ****▶️ 3. Seamless Playback****
-
-• Remembers playback position for each movie
-
-• Double-tap gesture for play/pause (more gestures coming)
-
-• Clean, distraction-free UI
-
-• ExoPlayer-based for fast and stable playback, even with large files
+  
+  • Remembers playback position for each movie
+  
+  • Double-tap gesture for play/pause (more gestures coming)
+  
+  • Clean, distraction-free UI
+  
+  • ExoPlayer-based for fast and stable playback, even with large files
 
 ****📂 4. Folder Intelligence****
 
-• Smart folder detection using structure, size, and naming patterns
-
-• Folder exclusion (e.g., hide WhatsApp, Instagram, Telegram videos)
-
-• Grid and list views for movie browsing
+  • Smart folder detection using structure, size, and naming patterns
+  
+  • Folder exclusion (e.g., hide WhatsApp, Instagram, Telegram videos)
+  
+  • Grid and list views for movie browsing
+  
 
 ****🖤 5. Minimalist Design
 ****
-• Material You-inspired dark UI
+  • Material You-inspired dark UI
+  
+  • Lightweight — no unnecessary background services
+  
+  • Fast, battery-friendly, and beautiful
 
-• Lightweight — no unnecessary background services
-
-• Fast, battery-friendly, and beautiful
+  
 
 ****⚠️ What’s Missing (For Now)****
 _InkFrame is under active development. Here's what we don’t support yet:_
