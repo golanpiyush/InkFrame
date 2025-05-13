@@ -100,6 +100,8 @@ _Clone the repo and build using Android Studio:
 git clone https://github.com/golanpiyush/InkFrame.git
 Note: You'll need to add your TMDb API key to enable metadata fetching._
 
+with a strong understanding of Andriod File Structure
+
 **🧠 Tech Stack**
 
 • Language: Flutter
