@@ -1,129 +1,149 @@
 inkFrame
 
-_inkFrame is a minimal yet powerful offline movie video player for Android. Built for cinephiles who value both design and functionality, InkFrame intelligently organizes and plays your local video files — especially full-length movies — with rich metadata, subtitle automation, and a focus on smooth, immersive playback.
+Minimal yet powerful offline movie player for Android
 
-> Future-ready: InkFrame will eventually evolve into a hybrid movie platform — supporting online movie streaming and discovery alongside local playback._
+InkFrame is designed for cinephiles who value both form and function. It intelligently organizes your local movie files, fetches rich metadata, handles subtitles effortlessly, and delivers a smooth, immersive playback experience — all wrapped in a beautiful, minimalist UI.
+
+> Future-ready: InkFrame is set to evolve into a hybrid movie platform supporting online streaming and movie discovery alongside local playback.
 
 
 
 
 ---
 
-**Key Features :-**
+Key Features
 
-**1. Smart Subtitle Engine**
+1. Smart Subtitle Engine
 
-_Automatically detects movie file names and fetches subtitles using intelligent heuristics.
+Auto-detects movie filenames and fetches subtitles using intelligent heuristics
 
-Supports auto-download and caching of .srt files.
+Supports .srt subtitle auto-download & caching
 
-Supports multiple subtitle tracks with easy switching.
+Multiple subtitle tracks with easy switching
 
-Fully customizable subtitles:
+Fully customizable:
 
 Font size, color, and style
 
 Background opacity and color
 
-Sync adjustment_
+Sync offset adjustment
 
 
 
-**2. Movie Mode (Metadata & Enrichment)**
 
-_When a movie is detected, InkFrame auto-fetches:
+---
+
+2. Movie Mode (Metadata & Enrichment)
+
+Automatically fetches:
 
 IMDb rating
 
-Poster & banner
+Poster & banners
 
-Plot synopsis
+Plot summary
 
 Cast & crew info
 
 
-Offers a rich, contextual experience before you hit play._
-
-
-**3. Seamless Playback**
-
-_Remembers the last playback position for every movie.
-
-Double-tap to pause/play gesture (more gestures planned).
-
-Clean, distraction-free player UI using ExoPlayer under the hood.
-
-Resumes playback with lightning speed, even with large files._
-
-
-**4. Folder Intelligence**
-
-_Auto-detects movie folders (based on structure, file naming, and size).
-
-Allows folder exclusion to hide unwanted content (e.g., WhatsApp videos, reels).
-
-Supports both grid and list views for browsing._
-
-
-**5. Minimalist Design**
-
-_Material You inspired clean, dark UI.
-
-Light footprint, no background services unless needed.
-
-Built to be beautiful, battery-efficient, and blazing fast._
+Rich, contextual movie detail screen before playback
 
 
 
 ---
 
-**What's Missing (for now)**
+3. Seamless Playback
 
-_> Transparency matters. Here's what InkFrame does not support yet, but may in future updates.
+Remembers playback position for each movie
 
-No network/streaming playback (future support planned).
+Double-tap gesture for play/pause (more gestures coming)
 
-No subtitle search by hash (uses name-based lookup currently).
+Clean, distraction-free UI
 
-No PiP (Picture-in-Picture) mode yet.
-
-No Chromecast or DLNA.
-
-No multi-audio track switch (currently defaults to first track).
-
-Only English language is prioritized in metadata and subtitles._
+ExoPlayer-based fast and stable playback, even for large files
 
 
 
 ---
 
-**Planned Features & Roadmap**
+4. Folder Intelligence
 
-**Feature	Status**
+Smart folder detection based on structure, file size, and naming
 
-_Movie Streaming Support	Coming soon
-Subtitle sync editor	Planned
-Multi-audio track switching	Planned
-PiP Mode	Planned
-Chromecast / DLNA streaming	Planned
-Theme customization	Planned
-TV & tablet UIs (Android TV)	Planned
-Video enhancement filters	Planned_
+Folder exclusion (hide WhatsApp videos, Instagram reels, etc.)
 
----
+Grid and list views for browsing
 
-**How to Install**
-
-Clone and build using Android Studio:
-
-_git clone https://github.com/yourusername/InkFrame.git_
-
-**Make sure to add your TMDb API key if metadata fetching is enabled.**
 
 
 ---
 
-**Tech Stack**
+5. Minimalist Design
+
+Material You-inspired dark UI
+
+Lightweight with no unnecessary background services
+
+Fast, battery-friendly, and beautiful
+
+
+
+---
+
+What’s Missing (For Now)
+
+> Transparency first — here’s what we don’t support yet:
+
+
+
+No network or streaming playback (coming soon)
+
+No hash-based subtitle search (currently name-based only)
+
+No PiP (Picture-in-Picture) mode
+
+No Chromecast or DLNA support
+
+No multi-audio track selection (defaults to first)
+
+English prioritized for metadata/subtitles (multi-language support planned)
+
+
+
+---
+
+Planned Features & Roadmap
+
+Feature	Status
+
+Movie Streaming Support	Coming Soon
+Subtitle Sync Editor	Planned
+Multi-Audio Track Switching	Planned
+Picture-in-Picture Mode	Planned
+Chromecast / DLNA	Planned
+Theme Customization	Planned
+TV & Tablet UI (Android TV)	Planned
+Video Enhancement Filters	Planned
+
+
+
+---
+
+Installation
+
+Clone the repo and build using Android Studio:
+
+git clone https://github.com/yourusername/InkFrame.git
+
+> Note: You’ll need to add your TMDb API key to enable metadata fetching.
+
+
+
+
+---
+
+Tech Stack
 
 Language: Flutter
 
@@ -131,33 +151,41 @@ Video Engine: ExoPlayer
 
 Metadata API: OMDb / IMDb (via unofficial endpoints)
 
-Subtitles: Custom fetch engine from OpenSubtitles
+Subtitles: Custom fetch engine (OpenSubtitles)
 
-Architecture: MVVM + Jetpack Libraries
-
-
-
----
-
-**Forking Notice**
-
-> _InkFrame will be forked into a parallel streaming version — supporting content streaming, cloud libraries, and synced watchlists — in the near future.
-Stay tuned if you're interested in contributing to the streaming branch or a hybrid version of the player._
-
+Architecture: MVVM + Jetpack Components
 
 
 
 ---
 
-**Contributing**
+Forking Notice
 
-We're happy to welcome contributors! You can:
+InkFrame will soon be forked into a streaming-first version, supporting:
 
-Submit PRs
+Online content streaming
 
-File issues or feature requests
+Cloud libraries
 
-Help with localization, UI design, or performance tuning
+Synced watchlists
+
+
+> Stay tuned if you're interested in contributing to the hybrid or streaming branch.
+
+
+
+
+---
+
+Contributing
+
+We welcome contributions! You can:
+
+Submit pull requests
+
+File bugs or feature requests
+
+Help with localization, UI design, or performance optimization
 
 
 
