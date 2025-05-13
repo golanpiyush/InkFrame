@@ -1,5 +1,9 @@
 ****🎬 InkFrame****
 
+**⚠️NOTICE** **- inkFrame is heavily under active development and sometimes may misbehave ⚠️**
+
+
+
 Minimal yet powerful offline movie player for Android
 
 
