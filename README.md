@@ -1,141 +1,159 @@
-🎬 InkFrame
+****🎬 InkFrame****
 Minimal yet powerful offline movie player for Android
 
 InkFrame is built for cinephiles who appreciate both form and function. It intelligently organizes your local movie files, fetches rich metadata, handles subtitles effortlessly, and delivers a smooth, immersive playback experience — all wrapped in a beautiful, minimalist UI.
 
 Future-ready: InkFrame will evolve into a hybrid platform supporting online streaming and movie discovery, alongside local playback.
 
-✨ Key Features
-🎞️ 1. Smart Subtitle Engine
-Auto-detects movie filenames and fetches subtitles using intelligent heuristics
+****✨ Key Features****
+**🎞️ 1. Smart Subtitle Engine**
+• Auto-detects movie filenames and fetches subtitles using intelligent heuristics
 
-Supports .srt subtitle auto-download & caching
+• Supports .srt subtitle auto-download & caching
 
-Multiple subtitle tracks with quick switching
+• Multiple subtitle tracks with quick switching
 
-Fully customizable:
+• Fully customizable:
 
-Font size, color, and style
+• Font size, color, and style
 
-Background opacity and color
+• Background opacity and color
 
-Sync offset adjustment
+• Sync offset adjustment
 
-📽️ 2. Movie Mode (Metadata & Enrichment)
-Automatically fetches:
+**📽️ 2. Movie Mode (Metadata & Enrichment)**
+_Automatically fetches:_
 
-IMDb rating
+• IMDb rating
 
-Posters & banners
+• Posters & banners
 
-Plot summaries
+• Plot summaries
 
-Cast & crew info
+• Cast & crew info
 
-Rich, contextual movie detail screen before playback
+• Rich, contextual movie detail screen before playback
 
-▶️ 3. Seamless Playback
-Remembers playback position for each movie
+****▶️ 3. Seamless Playback****
 
-Double-tap gesture for play/pause (more gestures coming)
+• Remembers playback position for each movie
 
-Clean, distraction-free UI
+• Double-tap gesture for play/pause (more gestures coming)
 
-ExoPlayer-based for fast and stable playback, even with large files
+• Clean, distraction-free UI
 
-📂 4. Folder Intelligence
-Smart folder detection using structure, size, and naming patterns
+• ExoPlayer-based for fast and stable playback, even with large files
 
-Folder exclusion (e.g., hide WhatsApp, Instagram, Telegram videos)
+****📂 4. Folder Intelligence****
 
-Grid and list views for movie browsing
+• Smart folder detection using structure, size, and naming patterns
 
-🖤 5. Minimalist Design
-Material You-inspired dark UI
+• Folder exclusion (e.g., hide WhatsApp, Instagram, Telegram videos)
 
-Lightweight — no unnecessary background services
+• Grid and list views for movie browsing
 
-Fast, battery-friendly, and beautiful
+****🖤 5. Minimalist Design
+****
+• Material You-inspired dark UI
 
-⚠️ What’s Missing (For Now)
-InkFrame is under active development. Here's what we don’t support yet:
+• Lightweight — no unnecessary background services
 
-❌ No network or streaming playback (coming soon)
+• Fast, battery-friendly, and beautiful
 
-❌ No hash-based subtitle search (currently filename-based)
+****⚠️ What’s Missing (For Now)****
+_InkFrame is under active development. Here's what we don’t support yet:_
 
-❌ No Picture-in-Picture (PiP) mode
+• **❌ No network or streaming playback (coming soon)**
 
-❌ No Chromecast or DLNA support
+• **❌ No hash-based subtitle search (currently filename-based)**
 
-❌ No multi-audio track selection (defaults to first audio track)
+• **❌ No Picture-in-Picture (PiP) mode**
 
-❌ English prioritized for metadata/subtitles (multi-language support planned)
+• **❌ No Chromecast or DLNA support**
 
-📅 Planned Features & Roadmap
-Feature	Status
-✅ Movie Streaming Support	Coming Soon
-❌ Subtitle Sync Editor	Planned
-❌ Multi-Audio Track Switching	Planned
-❌ Picture-in-Picture Mode	Planned
-❌ Chromecast / DLNA	Planned
-❌ Theme Customization	Planned
-❌ TV & Tablet UI (Android TV)	Planned
-❌ Video Enhancement Filters	Planned
+• **❌ No multi-audio track selection (defaults to first audio track)**
 
-📦 Installation
-Clone the repo and build using Android Studio:
+• **❌ English prioritized for metadata/subtitles (multi-language support planned)
+**
+
+****📅 Planned Features & Roadmap
+****
+_Feature	Status
+_
+**• ✅ Movie Streaming Support	Coming Soon
+• ❌ Subtitle Sync Editor	Planned
+• ❌ Multi-Audio Track Switching	Planned
+• ❌ Picture-in-Picture Mode	Planned
+• ❌ Chromecast / DLNA	Planned
+• ❌ Theme Customization	Planned
+• ❌ TV & Tablet UI (Android TV)	Planned
+• ❌ Video Enhancement Filters	Planned**
+
+****📦 Installation**
+**_Clone the repo and build using Android Studio:
 
 bash
 Copy
 Edit
 git clone https://github.com/golanpiyush/InkFrame.git
-Note: You'll need to add your TMDb API key to enable metadata fetching.
+Note: You'll need to add your TMDb API key to enable metadata fetching._
 
-🧠 Tech Stack
-Language: Flutter
+****🧠 Tech Stack**
+**
+• Language: Flutter
 
-Video Engine: ExoPlayer
+• Video Engine: ExoPlayer
 
-Metadata API: OMDb / IMDb (via unofficial endpoints)
+• Metadata API: OMDb / IMDb (via unofficial endpoints)
 
-Subtitles: Custom fetch engine (OpenSubtitles)
+• Subtitles: Custom fetch engine (OpenSubtitles)
 
-Architecture: MVVM + Jetpack Components
+• Architecture: MVVM + Jetpack Components
 
-🪓 Forking Notice
-InkFrame will soon be forked into a streaming-first version with support for:
+****🪓 Forking Notice
+****
+_InkFrame will soon be forked into a streaming-first version with support for:
+_
+**• 🌐 Online content streaming**
 
-🌐 Online content streaming
+**• ☁️ Cloud libraries
+**
+**• 📚 Synced watchlists
+**
 
-☁️ Cloud libraries
-
-📚 Synced watchlists
-
-Stay tuned if you're interested in contributing to the hybrid or streaming fork.
-
-💡 Contributing
+_Stay tuned if you're interested in contributing to the hybrid or streaming fork.
+_
+****💡 Contributing
+****
 We welcome all contributions!
 
-🛠 Submit pull requests
+• 🛠 Submit pull requests
 
-🐞 File bugs or feature requests
+• 🐞 File bugs or feature requests
 
-🌍 Help with localization
+• 🌍 Help with localization
 
-🎨 Contribute UI/UX designs
+• 🎨 Contribute UI/UX designs
 
-⚡ Improve performance
+• ⚡ Improve performance
 
 🖼 Screenshots
-📎 Attach screenshots below to showcase UI/UX, features, and movie detail screens.
 
-bash
-Copy
-Edit
-[Add your screenshots here, for example:]
-- /screenshots/home_ui.png
-- /screenshots/movie_details.png
-- /screenshots/player.png
-📄 License
-MIT License — Free to use, modify, and distribute.
+**Folder Exclusion Screen -
+**
+• ![WhatsApp Image 2025-05-14 at 02 26 48_2af578b7](https://github.com/user-attachments/assets/7976e9bb-68df-4716-b011-238d80607d6e)
+
+**Library Screen (Main) -
+**
+• ![WhatsApp Image 2025-05-14 at 02 26 48_7f7848ce](https://github.com/user-attachments/assets/0b009484-22f9-49f8-a566-8ebac1dc1053)
+
+**FolderContent Screen - 
+** 
+![WhatsApp Image 2025-05-14 at 02 26 49_c46979aa](https://github.com/user-attachments/assets/9fef6e39-4794-4c66-85de-009afa3d1307)
+
+
+
+**📄 License
+**
+_MIT License — Free to use, modify, and distribute.
+_
