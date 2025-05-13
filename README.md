@@ -83,17 +83,18 @@ _InkFrame is under active development. Here's what we don’t support yet:_
 • **❌ English prioritized for metadata/subtitles (multi-language support planned)
 **
 
-****📅 Planned Features & Roadmap
-****
+**📅 Planned Features & Roadmap
+**
+
 _Feature	Status
 _
-**• ✅ Movie Streaming Support	Coming Soon
-• ❌ Subtitle Sync Editor	Planned
-• ❌ Multi-Audio Track Switching	Planned
-• ❌ Picture-in-Picture Mode	Planned
-• ❌ Chromecast / DLNA	Planned
-• ❌ Theme Customization	Planned
-• ❌ TV & Tablet UI (Android TV)	Planned
+**• ✅ Movie Streaming Support	Coming Soon\n
+• ❌ Subtitle Sync Editor - Planned\n
+• ❌ Multi-Audio Track Switching - Planned\n
+• ❌ Picture-in-Picture Mode - Planned\n
+• ❌ Chromecast / DLNA - Planned\n
+• ❌ Theme Customization - Planned\n
+• ❌ TV & Tablet UI (Android TV) - Planned\n
 • ❌ Video Enhancement Filters	Planned**
 
 ****📦 Installation**
