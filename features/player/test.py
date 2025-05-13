@@ -1,7 +1,7 @@
 import requests
 import os
 
-API_KEY = "lKx5GNtBO24IWpnpW7FvfwHclOBxCc2T"
+API_KEY = ""
 
 def search_subtitles(movie_name: str):
     """Search for subtitles for the given movie name."""
