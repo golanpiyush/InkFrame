@@ -1,9 +1,12 @@
 ****🎬 InkFrame****
+
 Minimal yet powerful offline movie player for Android
+
 
 InkFrame is built for cinephiles who appreciate both form and function. It intelligently organizes your local movie files, fetches rich metadata, handles subtitles effortlessly, and delivers a smooth, immersive playback experience — all wrapped in a beautiful, minimalist UI.
 
 Future-ready: InkFrame will evolve into a hybrid platform supporting online streaming and movie discovery, alongside local playback.
+
 
 ****✨ Key Features****
 
