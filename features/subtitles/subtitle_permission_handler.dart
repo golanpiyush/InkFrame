@@ -89,10 +89,9 @@ class PermissionManager {
           (context) => AlertDialog(
             title: const Text('Storage Permission Required'),
             content: Text(
-              'To download and use subtitles, the app needs permission to access storage. ' +
-                  (permanent
+              'To download and use subtitles, the app needs permission to access storage. ${permanent
                       ? 'Please open app settings and enable storage permission.'
-                      : ''),
+                      : ''}',
             ),
             actions: [
               TextButton(

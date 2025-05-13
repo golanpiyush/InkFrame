@@ -3,19 +3,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:inkframe/features/library/FolderSelectionScreen.dart';
 import 'package:inkframe/features/library/library_screen.dart';
 import 'shared/themes/app_theme.dart';
-import 'app_global_context.dart'; // <-- Add this import
+import 'app_global_context.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  Future<bool> hasCompletedFolderSelection() async {
+  Future<bool> hasExcludedFolders() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('folder_selection_completed') ?? false;
-  }
-
-  Future<void> setFolderSelectionCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('folder_selection_completed', true);
+    final excluded = prefs.getStringList('excluded_folders');
+    return excluded != null && excluded.isNotEmpty;
   }
 
   @override
@@ -23,10 +19,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'InkFrame',
       theme: AppTheme.darkTheme,
-      navigatorKey:
-          AppGlobalContext.navigatorKey, // <-- Set the global navigatorKey
+      navigatorKey: AppGlobalContext.navigatorKey,
       home: FutureBuilder<bool>(
-        future: hasCompletedFolderSelection(),
+        future: hasExcludedFolders(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
@@ -35,17 +30,19 @@ class MyApp extends StatelessWidget {
           }
 
           if (snapshot.hasData && snapshot.data == true) {
-            return LibraryScreen();
+            return LibraryScreen(); // Already excluded folders exist
           }
 
+          // No excluded folders → show folder selection screen
           return FolderSelectionScreen(
             initiallyExcluded: [],
-            onComplete: () async {
-              await setFolderSelectionCompleted();
-              AppGlobalContext.navigatorKey.currentState?.pushReplacement(
-                MaterialPageRoute(builder: (_) => LibraryScreen()),
-              );
-            },
+            // onComplete: () async {
+            //   WidgetsBinding.instance.addPostFrameCallback((_) {
+            //     AppGlobalContext.navigatorKey.currentState?.pushReplacement(
+            //       MaterialPageRoute(builder: (_) => LibraryScreen()),
+            //     );
+            //   });
+            // },
           );
         },
       ),

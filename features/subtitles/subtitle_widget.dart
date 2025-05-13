@@ -7,8 +7,7 @@ import 'package:flutter/services.dart';
 class SubtitleWidget extends StatefulWidget {
   final File subtitleFile;
 
-  const SubtitleWidget({Key? key, required this.subtitleFile})
-    : super(key: key);
+  const SubtitleWidget({super.key, required this.subtitleFile});
 
   @override
   _SubtitleWidgetState createState() => _SubtitleWidgetState();

@@ -8,7 +8,11 @@ class SubtitleTextStyle {
     color: Colors.white,
     fontWeight: FontWeight.w500,
     shadows: [
-      Shadow(offset: Offset(1.0, 1.0), blurRadius: 2.0, color: Colors.black87),
+      Shadow(
+        offset: Offset(1.0, 1.0),
+        blurRadius: 2.0,
+        color: Color.fromARGB(47, 0, 0, 0),
+      ),
     ],
   );
 }

@@ -7,6 +7,27 @@ import 'package:permission_handler/permission_handler.dart';
 class MediaService {
   static const String EXCLUDED_FOLDERS_KEY = 'excluded_folders';
   static const String QUALITY_KEYWORDS = 'quality_keywords';
+  static const String SELECTED_FOLDERS_KEY = 'selected_folders';
+  static const String CACHED_FOLDERS_KEY = 'cached_folders';
+  static const String CACHE_TIMESTAMP_KEY = 'folders_cache_timestamp';
+
+  // Cache duration in milliseconds (24 hours)
+  static const int CACHE_DURATION = 24 * 60 * 60 * 1000;
+
+  // Minimum video file size in bytes (1MB)
+  static const int MIN_VIDEO_SIZE = 1 * 1024 * 1024; // 1MB
+
+  // List of video file extensions
+  static const List<String> VIDEO_EXTENSIONS = [
+    'mp4',
+    'mkv',
+    'avi',
+    'mov',
+    'wmv',
+    '3gp',
+    'flv',
+    'webm',
+  ];
 
   // Default quality keywords to look for in folder names
   static final List<String> defaultQualityKeywords = [
@@ -39,59 +60,52 @@ class MediaService {
     '/Alarms',
   ];
 
+  // Protected paths that should never be excluded
+  static final List<String> protectedPaths = [
+    '/storage/emulated/0',
+    '/Movies',
+    '/Download',
+    '/Downloads',
+    '/Video',
+    '/Videos',
+  ];
+
   static Future<bool> requestStoragePermission() async {
     try {
+      // Create a list to track which permissions we have
+      final List<bool> grantedPermissions = [];
+
       // Request basic storage permission first
       PermissionStatus status = await Permission.storage.status;
       if (!status.isGranted) {
         status = await Permission.storage.request();
       }
+      grantedPermissions.add(status.isGranted);
 
-      // Request additional permissions for all Android versions
-      // This approach is simpler and more robust
+      // Request additional permissions for Android
       if (Platform.isAndroid) {
         // Request manage external storage for broader access
         final manageExternalStatus =
             await Permission.manageExternalStorage.request();
+        grantedPermissions.add(manageExternalStatus.isGranted);
 
-        // For Android 13+, request only video permission (more focused approach)
+        // For Android 13+, request video permission (more focused approach)
         try {
-          // Only request videos permission - we're focusing on video files only
           final videosStatus = await Permission.videos.request();
-
-          // Return true if we have either basic storage access, manage external,
-          // or videos permission
-          return status.isGranted ||
-              manageExternalStatus.isGranted ||
-              videosStatus.isGranted;
+          grantedPermissions.add(videosStatus.isGranted);
         } catch (e) {
           debugPrint('Error requesting video permissions: $e');
-          // If video permission fails, fall back to the storage permission
-          return status.isGranted || manageExternalStatus.isGranted;
+          // Ignore error, we'll fall back to other permissions
         }
       }
 
-      return status.isGranted;
+      // Return true if ANY permission was granted
+      return grantedPermissions.any((granted) => granted);
     } catch (e) {
       debugPrint('Error requesting permissions: $e');
+      // In case of error, conservatively return false
       return false;
     }
-  }
-
-  static Future<int> _getAndroidSDKVersion() async {
-    // Hardcoded approach - assume all modern Android devices need the new permissions
-    // This is safer than trying to parse version strings that vary by device
-    try {
-      // For debugging purposes only
-      if (Platform.isAndroid) {
-        debugPrint('Android version string: ${Platform.version}');
-      }
-    } catch (e) {
-      debugPrint('Error accessing Platform.version: $e');
-    }
-
-    // Return a value that will trigger the extra permissions for Android 13+
-    return 33; // Always request all permissions for Android 13+ (API 33+)
   }
 
   static Future<List<Directory>> getAllMediaDirectories() async {
@@ -163,6 +177,19 @@ class MediaService {
     } catch (e) {
       debugPrint('Error retrieving directories: $e');
     }
+
+    // Fallback - if no directories were found, add the root directory
+    if (directories.isEmpty && Platform.isAndroid) {
+      try {
+        final rootDir = Directory('/storage/emulated/0');
+        if (await rootDir.exists()) {
+          directories.add(rootDir);
+        }
+      } catch (e) {
+        debugPrint('Error adding fallback root directory: $e');
+      }
+    }
+
     return directories;
   }
 
@@ -174,11 +201,22 @@ class MediaService {
     return directories.any(
       (existingDir) =>
           existingDir.path == dir.path ||
-          dir.path.startsWith(existingDir.path + '/'),
+          dir.path.startsWith('${existingDir.path}/'),
     );
   }
 
-  static Future<List<Map<String, dynamic>>> getAllFolders() async {
+  static Future<List<Map<String, dynamic>>> getAllFolders({
+    bool forceRefresh = false,
+  }) async {
+    // Try to load from cache first if not forcing refresh
+    if (!forceRefresh) {
+      final cachedFolders = await _loadCachedFolders();
+      if (cachedFolders != null) {
+        debugPrint('Loaded folders from cache');
+        return cachedFolders;
+      }
+    }
+
     final List<Map<String, dynamic>> folders = [];
     bool hasPermission = await requestStoragePermission();
     if (!hasPermission) {
@@ -189,12 +227,14 @@ class MediaService {
     final List<String> excludedFolders = await getExcludedFolders();
     final List<Directory> baseDirectories = await getAllMediaDirectories();
 
+    // Fallback to ensure we always have at least the root directory
     if (baseDirectories.isEmpty) {
       folders.add({
         'path': '/storage/emulated/0',
         'name': 'Internal Storage',
-        'isQualityFolder': false,
-        'hasVideoFiles': false,
+        'isSelected': false,
+        'videoCount': 0,
+        'totalSize': 0,
       });
       return folders;
     }
@@ -204,87 +244,55 @@ class MediaService {
         await _scanDirectory(baseDir.path, folders, excludedFolders);
       } catch (e) {
         debugPrint('Error scanning ${baseDir.path}: $e');
-        folders.add({
-          'path': baseDir.path,
-          'name': baseDir.path.split('/').last,
-          'isQualityFolder': false,
-          'hasVideoFiles': false,
-        });
       }
     }
 
-    if (folders.isEmpty) {
-      folders.add({
-        'path': '/storage/emulated/0/Download',
-        'name': 'Download',
-        'isQualityFolder': false,
-        'hasVideoFiles': false,
-      });
-      folders.add({
-        'path': '/storage/emulated/0/Movies',
-        'name': 'Movies',
-        'isQualityFolder': false,
-        'hasVideoFiles': false,
-      });
-    }
+    // Always make sure Movies and Download folders are at the top if they exist
+    _prioritizeImportantFolders(folders);
 
-    // Custom sorting function based on priority order:
-    // 1. Movies folders
-    // 2. Download folders
-    // 3. Quality folders
-    // 4. Other video folders
-    // 5. Alphabetical
-    folders.sort((a, b) {
-      final aPath = a['path'] as String;
-      final bPath = b['path'] as String;
-      final aName = a['name'] as String;
-      final bName = b['name'] as String;
-
-      // Priority 1: Movies folders (either by path or name)
-      final aIsMovieFolder =
-          aPath.contains('/Movies') ||
-          aName.toLowerCase() == 'movies' ||
-          aName.toLowerCase() == 'movie';
-      final bIsMovieFolder =
-          bPath.contains('/Movies') ||
-          bName.toLowerCase() == 'movies' ||
-          bName.toLowerCase() == 'movie';
-
-      if (aIsMovieFolder && !bIsMovieFolder) return -1;
-      if (!aIsMovieFolder && bIsMovieFolder) return 1;
-
-      // Priority 2: Download folders
-      final aIsDownloadFolder =
-          aPath.contains('/Download') ||
-          aName.toLowerCase() == 'download' ||
-          aName.toLowerCase() == 'downloads';
-      final bIsDownloadFolder =
-          bPath.contains('/Download') ||
-          bName.toLowerCase() == 'download' ||
-          bName.toLowerCase() == 'downloads';
-
-      if (aIsDownloadFolder && !bIsDownloadFolder) return -1;
-      if (!aIsDownloadFolder && bIsDownloadFolder) return 1;
-
-      // Priority 3: Quality folders
-      final aIsQuality = a['isQualityFolder'] as bool;
-      final bIsQuality = b['isQualityFolder'] as bool;
-
-      if (aIsQuality && !bIsQuality) return -1;
-      if (!aIsQuality && bIsQuality) return 1;
-
-      // Priority 4: Other video folders
-      final aHasVideos = a['hasVideoFiles'] as bool;
-      final bHasVideos = b['hasVideoFiles'] as bool;
-
-      if (aHasVideos && !bHasVideos) return -1;
-      if (!aHasVideos && bHasVideos) return 1;
-
-      // Finally, sort alphabetically
-      return aName.compareTo(bName);
-    });
+    // Cache the folders for next time
+    await _cacheFolders(folders);
 
     return folders;
+  }
+
+  static void _prioritizeImportantFolders(List<Map<String, dynamic>> folders) {
+    // First extract and remove the Movies and Download folders
+    final moviesFolders =
+        folders
+            .where(
+              (folder) =>
+                  folder['path'].contains('/Movies') ||
+                  folder['name'].toLowerCase() == 'movies' ||
+                  folder['name'].toLowerCase() == 'movie',
+            )
+            .toList();
+
+    final downloadFolders =
+        folders
+            .where(
+              (folder) =>
+                  folder['path'].contains('/Download') ||
+                  folder['name'].toLowerCase() == 'download' ||
+                  folder['name'].toLowerCase() == 'downloads',
+            )
+            .toList();
+
+    // Remove them from the original list
+    folders.removeWhere(
+      (folder) =>
+          folder['path'].contains('/Movies') ||
+          folder['name'].toLowerCase() == 'movies' ||
+          folder['name'].toLowerCase() == 'movie' ||
+          folder['path'].contains('/Download') ||
+          folder['name'].toLowerCase() == 'download' ||
+          folder['name'].toLowerCase() == 'downloads',
+    );
+
+    // Add them back in priority order
+    for (final folder in [...moviesFolders, ...downloadFolders]) {
+      folders.insert(0, folder);
+    }
   }
 
   static Future<void> _scanDirectory(
@@ -297,8 +305,17 @@ class MediaService {
       return;
     }
 
-    // Check user-specified exclusions first
-    if (userExcludedFolders.any((excluded) => path.contains(excluded))) {
+    // Never exclude protected paths
+    bool isProtectedPath = false;
+    for (final protectedPath in protectedPaths) {
+      if (path == protectedPath || path.endsWith(protectedPath)) {
+        isProtectedPath = true;
+        break;
+      }
+    }
+
+    // Skip excluded paths, but only if they're not protected
+    if (!isProtectedPath && _isExcludedPath(path, userExcludedFolders)) {
       return;
     }
 
@@ -308,142 +325,35 @@ class MediaService {
 
       final name = path.split('/').last.isEmpty ? path : path.split('/').last;
 
-      // First, check if folder name contains quality keywords
-      final isQualityFolder = await _isQualityFolder(path);
+      // Check if folder has video files over 1MB (more expensive operation)
+      final videoFileSummary = await _getVideoSummary(path);
+      final bool hasValidVideos = videoFileSummary['count'] > 0;
 
-      // Then check if folder has video files (more expensive operation)
-      final hasVideoFiles = await _isVideoFolder(path);
-
-      // If it's a quality folder or has video files, definitely add it
-      final isMovieFolder =
-          name.toLowerCase().contains('movie') || path.contains('/Movies');
-      final isVideoFolder = name.toLowerCase().contains('video');
-      final isDownloadFolder =
-          name.toLowerCase().contains('download') || path.contains('/Download');
-
-      // Add to list if it matches our criteria
-      if (hasVideoFiles ||
-          isQualityFolder ||
-          isMovieFolder ||
-          isVideoFolder ||
-          isDownloadFolder) {
+      // If it has valid video files, add it
+      if (hasValidVideos) {
         // Check if this path is already in our folders list to avoid duplicates
         final alreadyAdded = folders.any((folder) => folder['path'] == path);
 
         if (!alreadyAdded) {
+          // Check if this folder is currently selected by the user
+          final selectedFolders = await getSelectedFolders();
+          // Explicitly set isSelected to a boolean value
+          final bool isSelected = selectedFolders.contains(path) ? true : false;
+
           folders.add({
             'path': path,
             'name': name,
-            'isQualityFolder': isQualityFolder,
-            'hasVideoFiles': hasVideoFiles,
+            'isSelected': isSelected,
+            'videoCount': videoFileSummary['count'],
+            'totalSize': videoFileSummary['totalSize'],
           });
         }
       }
 
-      // Auto-excluded patterns - only apply AFTER checking for quality folders and video files
-      // This ensures quality folders aren't excluded even if they're in typically excluded paths
-      final autoExcludedPatterns = [
-        // System folders
-        '/Android/data',
-        '/Android/obb',
-        '/LOST.DIR',
-        '/.trashed',
-        '/.trash',
-        '/.thumbnails',
-        '/Movies/.thumbnails',
-        '/DCIM/.thumbnails',
-
-        // Camera and screenshots folders (various manufacturers)
-        '/DCIM/Camera',
-        '/DCIM/Screenshots',
-        '/Pictures/Screenshots',
-        '/Pictures/Screen captures',
-        '/DCIM/ScreenRecorder',
-        '/Screenrecord',
-        '/Screen recordings',
-        '/ScreenCapture',
-        '/ScreenRecords',
-
-        // Samsung specific folders
-        '/DCIM/Camera (Samsung)',
-        '/Samsung/Camera',
-        '/Pictures/Samsung',
-
-        // Xiaomi/Redmi specific folders
-        '/MIUI/Gallery',
-        '/MIUI/Camera',
-        '/DCIM/Camera (Xiaomi)',
-
-        // Oppo/Realme/OnePlus specific folders
-        '/DCIM/Camera (OPPO)',
-        '/ColorOS/Camera',
-        '/Pictures/OPPO',
-        '/OnePlus/Camera',
-
-        // Motorola specific folders
-        '/DCIM/Camera (Motorola)',
-        '/Motorola/Camera',
-
-        // Huawei specific folders
-        '/DCIM/Camera (HUAWEI)',
-        '/Pictures/HUAWEI',
-        '/EMUI/Camera',
-
-        // Social media app folders
-        '/WhatsApp',
-        '/WhatsApp Images',
-        '/WhatsApp Video',
-        '/Telegram',
-        '/Telegram Images',
-        '/Telegram Video',
-        '/Instagram',
-        '/Snapchat',
-        '/TikTok',
-        '/Facebook',
-        '/Messenger',
-        '/Signal',
-
-        // Video editor app folders
-        '/Filmora',
-        '/VITA',
-        '/KineMaster',
-        '/CapCut',
-        '/InShot',
-        '/PowerDirector',
-
-        // System sounds and recordings
-        '/Recordings',
-        '/Recorder',
-        '/Voice Recorder',
-        '/Sound Recorder',
-        '/Ringtones',
-        '/Alarms',
-        '/Notifications',
-        '/Sounds',
-
-        // Common media folders (likely containing personal photos)
-        '/Pictures',
-        '/Gallery',
-        '/Camera',
-      ];
-
-      // Special cases that should never be auto-excluded
-      final protectedFolders = [
-        '/Movies',
-        '/Download',
-        '/Downloads',
-        '/Video',
-        '/Videos',
-      ];
-
-      // Check if path matches any auto-excluded pattern & is not in protected folders
-      // Only skip recursion into subfolders if this is an excluded pattern
-      if (autoExcludedPatterns.any(
-        (pattern) =>
-            path.contains(pattern) &&
-            !protectedFolders.any((protected) => path.contains(protected)),
-      )) {
-        return; // Skip recursion into subfolders for excluded patterns
+      // Auto-excluded patterns - only apply AFTER checking for video files
+      // Skip recursion into subfolders for auto-excluded patterns unless protected
+      if (!isProtectedPath && _isAutoExcludedPath(path)) {
+        return;
       }
 
       // Limit recursion depth
@@ -462,88 +372,321 @@ class MediaService {
     }
   }
 
-  static Future<int> _countFilesInDirectory(Directory dir) async {
-    try {
-      return await dir.list().where((entity) => entity is File).length;
-    } catch (e) {
-      debugPrint('Error counting files: $e');
-      return 0;
+  // Helper function to check if path is in user excluded paths
+  static bool _isExcludedPath(String path, List<String> userExcludedFolders) {
+    // Always handle the root directory case
+    if (path == '/storage/emulated/0') {
+      return false;
     }
+
+    return userExcludedFolders.any((excluded) => path.contains(excluded));
   }
 
-  // Helper function to check if folder contains video files
-  static Future<bool> _isVideoFolder(String path) async {
+  // Helper function to check against auto-excluded patterns
+  static bool _isAutoExcludedPath(String path) {
+    final autoExcludedPatterns = [
+      // System folders
+      '/Android/data',
+      '/Android/obb',
+      '/LOST.DIR',
+      '/.trashed',
+      '/.trash',
+      '/.thumbnails',
+      '/Movies/.thumbnails',
+      '/DCIM/.thumbnails',
+
+      // Camera and screenshots folders (various manufacturers)
+      '/DCIM/Camera',
+      '/DCIM/Screenshots',
+      '/Pictures/Screenshots',
+      '/Pictures/Screen captures',
+      '/DCIM/ScreenRecorder',
+      '/Screenrecord',
+      '/Screen recordings',
+      '/ScreenCapture',
+      '/ScreenRecords',
+
+      // Samsung specific folders
+      '/DCIM/Camera (Samsung)',
+      '/Samsung/Camera',
+      '/Pictures/Samsung',
+
+      // Xiaomi/Redmi specific folders
+      '/MIUI/Gallery',
+      '/MIUI/Camera',
+      '/DCIM/Camera (Xiaomi)',
+
+      // Oppo/Realme/OnePlus specific folders
+      '/DCIM/Camera (OPPO)',
+      '/ColorOS/Camera',
+      '/Pictures/OPPO',
+      '/OnePlus/Camera',
+
+      // Motorola specific folders
+      '/DCIM/Camera (Motorola)',
+      '/Motorola/Camera',
+
+      // Huawei specific folders
+      '/DCIM/Camera (HUAWEI)',
+      '/Pictures/HUAWEI',
+      '/EMUI/Camera',
+
+      // Social media app folders
+      '/WhatsApp',
+      '/WhatsApp Images',
+      '/WhatsApp Video',
+      '/Telegram',
+      '/Telegram Images',
+      '/Telegram Video',
+      '/Instagram',
+      '/Snapchat',
+      '/TikTok',
+      '/Facebook',
+      '/Messenger',
+      '/Signal',
+
+      // Video editor app folders
+      '/Filmora',
+      '/VITA',
+      '/KineMaster',
+      '/CapCut',
+      '/InShot',
+      '/PowerDirector',
+
+      // System sounds and recordings
+      '/Recordings',
+      '/Recorder',
+      '/Voice Recorder',
+      '/Sound Recorder',
+      '/Ringtones',
+      '/Alarms',
+      '/Notifications',
+      '/Sounds',
+
+      // Common media folders (likely containing personal photos)
+      '/Pictures',
+      '/Gallery',
+      '/Camera',
+    ];
+
+    // Check if path matches any auto-excluded pattern
+    for (final pattern in autoExcludedPatterns) {
+      if (path.contains(pattern)) {
+        // Double check that it's not a protected path
+        for (final protectedPath in protectedPaths) {
+          if (path.contains(protectedPath)) {
+            return false; // It's protected, don't exclude
+          }
+        }
+        return true; // Not protected and matches exclusion pattern
+      }
+    }
+
+    return false; // Not excluded
+  }
+
+  // Helper function to check if a file is a valid video
+  static bool _isVideoFile(String path) {
+    final extension = path.split('.').last.toLowerCase();
+    return VIDEO_EXTENSIONS.contains(extension);
+  }
+
+  // Helper function to check if folder contains video files over 1MB
+  static Future<Map<String, dynamic>> _getVideoSummary(String path) async {
+    int videoCount = 0;
+    int totalSize = 0;
+
     try {
       final dir = Directory(path);
-      if (!await dir.exists()) return false;
+      if (!await dir.exists()) return {'count': 0, 'totalSize': 0};
 
       final entities = await dir.list().toList();
 
-      // Check if folder contains video files
-      for (final entity in entities) {
-        if (entity is File) {
-          final extension = entity.path.split('.').last.toLowerCase();
-          if ([
-            'mp4',
-            'mkv',
-            'avi',
-            'mov',
-            'wmv',
-            '3gp',
-            'flv',
-            'webm',
-          ].contains(extension)) {
-            return true;
-          }
-        }
-      }
+      // First process files in this directory
+      await _processVideoFiles(entities, (count, size) {
+        videoCount += count;
+        totalSize += size;
+      });
 
-      // Check first level of subdirectories for video files (limited depth check)
+      // Then check first level of subdirectories (limited depth)
       for (final entity in entities) {
         if (entity is Directory) {
           try {
             final subEntities = await entity.list().toList();
-            for (final subEntity in subEntities) {
-              if (subEntity is File) {
-                final extension = subEntity.path.split('.').last.toLowerCase();
-                if ([
-                  'mp4',
-                  'mkv',
-                  'avi',
-                  'mov',
-                  'wmv',
-                  '3gp',
-                  'flv',
-                  'webm',
-                ].contains(extension)) {
-                  return true;
-                }
-              }
-            }
+            await _processVideoFiles(subEntities, (count, size) {
+              videoCount += count;
+              totalSize += size;
+            });
           } catch (e) {
             // Ignore errors in subdirectories
           }
         }
       }
 
-      return false;
+      return {'count': videoCount, 'totalSize': totalSize};
     } catch (e) {
       debugPrint('Error checking for videos in $path: $e');
-      return false;
+      return {'count': 0, 'totalSize': 0};
     }
   }
 
-  static Future<bool> _isQualityFolder(String path) async {
-    final folderName = path.split('/').last.toLowerCase();
-    final qualityKeywords = await getQualityKeywords();
-    return qualityKeywords.any(
-      (keyword) => folderName.contains(keyword.toLowerCase()),
-    );
+  // Helper to process video files
+  static Future<void> _processVideoFiles(
+    List<FileSystemEntity> entities,
+    Function(int count, int size) callback,
+  ) async {
+    int count = 0;
+    int size = 0;
+
+    for (final entity in entities) {
+      if (entity is File && _isVideoFile(entity.path)) {
+        try {
+          final fileSize = await entity.length();
+          if (fileSize >= MIN_VIDEO_SIZE) {
+            count++;
+            size += fileSize;
+          }
+        } catch (e) {
+          debugPrint('Error getting file size for ${entity.path}: $e');
+        }
+      }
+    }
+
+    callback(count, size);
+  }
+
+  // Cache management
+  static Future<void> _cacheFolders(List<Map<String, dynamic>> folders) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // Convert folders to simple string format for caching
+      final List<String> serialized =
+          folders.map((folder) {
+            // Ensure isSelected is properly converted to a string boolean
+            final bool isSelected = folder['isSelected'] == true;
+            return '${folder['path']}|${folder['name']}|${folder['videoCount']}|${folder['totalSize']}|$isSelected';
+          }).toList();
+
+      await prefs.setStringList(CACHED_FOLDERS_KEY, serialized);
+      await prefs.setInt(
+        CACHE_TIMESTAMP_KEY,
+        DateTime.now().millisecondsSinceEpoch,
+      );
+
+      debugPrint('Saved ${folders.length} folders to cache');
+    } catch (e) {
+      debugPrint('Error caching folders: $e');
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>?> _loadCachedFolders() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // Check if cache exists and isn't expired
+      final timestamp = prefs.getInt(CACHE_TIMESTAMP_KEY);
+      if (timestamp == null) return null;
+
+      final now = DateTime.now().millisecondsSinceEpoch;
+      if (now - timestamp > CACHE_DURATION) {
+        debugPrint('Cache expired');
+        return null;
+      }
+
+      final serialized = prefs.getStringList(CACHED_FOLDERS_KEY);
+      if (serialized == null || serialized.isEmpty) return null;
+
+      // Deserialize the cached folders
+      final List<Map<String, dynamic>> folders = [];
+      for (final item in serialized) {
+        final parts = item.split('|');
+        if (parts.length >= 4) {
+          // Allow for backward compatibility
+          final Map<String, dynamic> folder = {
+            'path': parts[0],
+            'name': parts[1],
+            'videoCount': int.tryParse(parts[2]) ?? 0,
+            'totalSize': int.tryParse(parts[3]) ?? 0,
+            // Ensure isSelected is always a boolean and has a default value
+            'isSelected': parts.length >= 5 ? parts[4] == 'true' : false,
+          };
+          folders.add(folder);
+        }
+      }
+
+      return folders;
+    } catch (e) {
+      debugPrint('Error loading cached folders: $e');
+      return null;
+    }
+  }
+
+  static Future<void> clearCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(CACHED_FOLDERS_KEY);
+      await prefs.remove(CACHE_TIMESTAMP_KEY);
+      debugPrint('Cache cleared');
+    } catch (e) {
+      debugPrint('Error clearing cache: $e');
+    }
+  }
+
+  // Selected folders management
+  static Future<List<String>> getSelectedFolders() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList(SELECTED_FOLDERS_KEY) ?? [];
+  }
+
+  static Future<void> saveSelectedFolders(List<String> folders) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(SELECTED_FOLDERS_KEY, folders);
+    debugPrint('Saved ${folders.length} selected folders');
+  }
+
+  static Future<void> toggleFolderSelection(
+    String path,
+    bool isSelected,
+  ) async {
+    final selectedFolders = await getSelectedFolders();
+
+    if (isSelected && !selectedFolders.contains(path)) {
+      selectedFolders.add(path);
+    } else if (!isSelected && selectedFolders.contains(path)) {
+      selectedFolders.remove(path);
+    }
+
+    await saveSelectedFolders(selectedFolders);
+
+    // Update the cache to reflect this change
+    final cachedFolders = await _loadCachedFolders();
+    if (cachedFolders != null) {
+      for (final folder in cachedFolders) {
+        if (folder['path'] == path) {
+          // Ensure we're setting a boolean value
+          folder['isSelected'] = isSelected ? true : false;
+        }
+      }
+      await _cacheFolders(cachedFolders);
+    }
   }
 
   static Future<List<String>> getExcludedFolders() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getStringList(EXCLUDED_FOLDERS_KEY) ?? defaultExcludedPaths;
+    final List<String> excludedFolders =
+        prefs.getStringList(EXCLUDED_FOLDERS_KEY) ?? defaultExcludedPaths;
+
+    // Filter out any protected paths that might have been mistakenly saved
+    return excludedFolders
+        .where(
+          (path) =>
+              !protectedPaths.any(
+                (protectedPath) =>
+                    path == protectedPath || path.endsWith(protectedPath),
+              ),
+        )
+        .toList();
   }
 
   static Future<List<String>> getQualityKeywords() async {
@@ -552,8 +695,39 @@ class MediaService {
   }
 
   static Future<void> saveExcludedFolders(List<String> folders) async {
+    // Filter out any protected paths
+    final filteredFolders =
+        folders
+            .where(
+              (path) =>
+                  !protectedPaths.any(
+                    (protectedPath) =>
+                        path == protectedPath || path.endsWith(protectedPath),
+                  ),
+            )
+            .toList();
+
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(EXCLUDED_FOLDERS_KEY, folders);
+    await prefs.setStringList(EXCLUDED_FOLDERS_KEY, filteredFolders);
+    // Clear cache when excluded folders change
+    await clearCache();
+  }
+
+  static Future<void> setExcludedFolders(List<String> folders) async {
+    // Filter out any protected paths
+    final filteredFolders =
+        folders
+            .where(
+              (path) =>
+                  !protectedPaths.any(
+                    (protectedPath) =>
+                        path == protectedPath || path.endsWith(protectedPath),
+                  ),
+            )
+            .toList();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(EXCLUDED_FOLDERS_KEY, filteredFolders);
   }
 
   static Future<void> saveQualityKeywords(List<String> keywords) async {
