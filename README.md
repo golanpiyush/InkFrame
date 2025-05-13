@@ -141,16 +141,13 @@ We welcome all contributions!
 
 🖼 Screenshots
 
-**Folder Exclusion Screen -
-**
+Folder Exclusion Screen -
 • ![WhatsApp Image 2025-05-14 at 02 26 48_2af578b7](https://github.com/user-attachments/assets/7976e9bb-68df-4716-b011-238d80607d6e)
 
-**Library Screen (Main) -
-**
+Library Screen (Main) -
 • ![WhatsApp Image 2025-05-14 at 02 26 48_7f7848ce](https://github.com/user-attachments/assets/0b009484-22f9-49f8-a566-8ebac1dc1053)
 
-**FolderContent Screen - 
-** 
+FolderContent Screen - 
 ![WhatsApp Image 2025-05-14 at 02 26 49_c46979aa](https://github.com/user-attachments/assets/9fef6e39-4794-4c66-85de-009afa3d1307)
 
 
