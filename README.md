@@ -1,19 +1,19 @@
-InkFrame
+inkFrame
 
-InkFrame is a minimal yet powerful offline movie video player for Android. Built for cinephiles who value both design and functionality, InkFrame intelligently organizes and plays your local video files — especially full-length movies — with rich metadata, subtitle automation, and a focus on smooth, immersive playback.
+_inkFrame is a minimal yet powerful offline movie video player for Android. Built for cinephiles who value both design and functionality, InkFrame intelligently organizes and plays your local video files — especially full-length movies — with rich metadata, subtitle automation, and a focus on smooth, immersive playback.
 
-> Future-ready: InkFrame will eventually evolve into a hybrid movie platform — supporting online movie streaming and discovery alongside local playback.
+> Future-ready: InkFrame will eventually evolve into a hybrid movie platform — supporting online movie streaming and discovery alongside local playback._
 
 
 
 
 ---
 
-Key Features
+**Key Features :-**
 
-1. Smart Subtitle Engine
+**1. Smart Subtitle Engine**
 
-Automatically detects movie file names and fetches subtitles using intelligent heuristics.
+_Automatically detects movie file names and fetches subtitles using intelligent heuristics.
 
 Supports auto-download and caching of .srt files.
 
@@ -25,13 +25,13 @@ Font size, color, and style
 
 Background opacity and color
 
-Sync adjustment
+Sync adjustment_
 
 
 
-2. Movie Mode (Metadata & Enrichment)
+**2. Movie Mode (Metadata & Enrichment)**
 
-When a movie is detected, InkFrame auto-fetches:
+_When a movie is detected, InkFrame auto-fetches:
 
 IMDb rating
 
@@ -42,44 +42,44 @@ Plot synopsis
 Cast & crew info
 
 
-Offers a rich, contextual experience before you hit play.
+Offers a rich, contextual experience before you hit play._
 
 
-3. Seamless Playback
+**3. Seamless Playback**
 
-Remembers the last playback position for every movie.
+_Remembers the last playback position for every movie.
 
 Double-tap to pause/play gesture (more gestures planned).
 
 Clean, distraction-free player UI using ExoPlayer under the hood.
 
-Resumes playback with lightning speed, even with large files.
+Resumes playback with lightning speed, even with large files._
 
 
-4. Folder Intelligence
+**4. Folder Intelligence**
 
-Auto-detects movie folders (based on structure, file naming, and size).
+_Auto-detects movie folders (based on structure, file naming, and size).
 
 Allows folder exclusion to hide unwanted content (e.g., WhatsApp videos, reels).
 
-Supports both grid and list views for browsing.
+Supports both grid and list views for browsing._
 
 
-5. Minimalist Design
+**5. Minimalist Design**
 
-Material You inspired clean, dark UI.
+_Material You inspired clean, dark UI.
 
 Light footprint, no background services unless needed.
 
-Built to be beautiful, battery-efficient, and blazing fast.
+Built to be beautiful, battery-efficient, and blazing fast._
 
 
 
 ---
 
-What's Missing (for now)
+**What's Missing (for now)**
 
-> Transparency matters. Here's what InkFrame does not support yet, but may in future updates.
+_> Transparency matters. Here's what InkFrame does not support yet, but may in future updates.
 
 No network/streaming playback (future support planned).
 
@@ -91,61 +91,45 @@ No Chromecast or DLNA.
 
 No multi-audio track switch (currently defaults to first track).
 
-Only English language is prioritized in metadata and subtitles.
+Only English language is prioritized in metadata and subtitles._
 
 
 
 ---
 
-Planned Features & Roadmap
+**Planned Features & Roadmap**
 
-Feature	Status
+**Feature	Status**
 
-Movie Streaming Support	Coming soon
+_Movie Streaming Support	Coming soon
 Subtitle sync editor	Planned
 Multi-audio track switching	Planned
 PiP Mode	Planned
 Chromecast / DLNA streaming	Planned
 Theme customization	Planned
 TV & tablet UIs (Android TV)	Planned
-Video enhancement filters	Planned
-
-
+Video enhancement filters	Planned_
 
 ---
 
-Preview
-
-> (Add your screenshots here and update paths accordingly)
-
-
-
-Movie Details	Player UI	Subtitle Settings	Folder Picker
-
-			
-
-
-
----
-
-How to Install
+**How to Install**
 
 Clone and build using Android Studio:
 
-git clone https://github.com/yourusername/InkFrame.git
+_git clone https://github.com/yourusername/InkFrame.git_
 
-Make sure to add your TMDb API key if metadata fetching is enabled.
+**Make sure to add your TMDb API key if metadata fetching is enabled.**
 
 
 ---
 
-Tech Stack
+**Tech Stack**
 
-Language: Kotlin
+Language: Flutter
 
 Video Engine: ExoPlayer
 
-Metadata API: TMDb / IMDb (via unofficial endpoints)
+Metadata API: OMDb / IMDb (via unofficial endpoints)
 
 Subtitles: Custom fetch engine from OpenSubtitles
 
@@ -155,17 +139,17 @@ Architecture: MVVM + Jetpack Libraries
 
 ---
 
-Forking Notice
+**Forking Notice**
 
-> InkFrame will be forked into a parallel streaming version — supporting content streaming, cloud libraries, and synced watchlists — in the near future.
-Stay tuned if you're interested in contributing to the streaming branch or a hybrid version of the player.
+> _InkFrame will be forked into a parallel streaming version — supporting content streaming, cloud libraries, and synced watchlists — in the near future.
+Stay tuned if you're interested in contributing to the streaming branch or a hybrid version of the player._
 
 
 
 
 ---
 
-Contributing
+**Contributing**
 
 We're happy to welcome contributors! You can:
 
