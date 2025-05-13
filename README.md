@@ -68,7 +68,7 @@ _Automatically fetches:_
   
 
 ****⚠️ What’s Missing (For Now)****
-_InkFrame is under heavy active development. Here's what we don’t support yet:_
+_InkFrame is heavily under active development. Here's what we don’t support yet:_
 
 • **❌ No network or streaming playback (coming soon)**
 
