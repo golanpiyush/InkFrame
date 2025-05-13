@@ -97,17 +97,14 @@ _
 • ❌ TV & Tablet UI (Android TV) - Planned\n
 • ❌ Video Enhancement Filters	Planned**
 
-****📦 Installation**
-**_Clone the repo and build using Android Studio:
+**📦 Installation**
+_Clone the repo and build using Android Studio:
 
-bash
-Copy
-Edit
 git clone https://github.com/golanpiyush/InkFrame.git
 Note: You'll need to add your TMDb API key to enable metadata fetching._
 
-****🧠 Tech Stack**
-**
+**🧠 Tech Stack**
+
 • Language: Flutter
 
 • Video Engine: ExoPlayer
