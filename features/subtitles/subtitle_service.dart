@@ -11,7 +11,7 @@ import 'package:path_provider/path_provider.dart';
 
 class SubtitleService {
   // SubDL API key and base URL
-  static const String apiKey = 'lKx5GNtBO24IWpnpW7FvfwHclOBxCc2T';
+  static const String apiKey = '';
   static const String subDlApiUrl = 'https://api.subdl.com/api/v1/subtitles';
 
   // Cache configuration
